@@ -16,7 +16,6 @@ import {
 } from "./styles";
 import imgQuestion from "./assets/question.png";
 import axios from "axios";
-import { IMAGE_UPLOAD_URL } from "variables";
 
 const UploadImage = (): JSX.Element => {
   const [image, setImage] = useState<File | null>(null);
@@ -27,6 +26,7 @@ const UploadImage = (): JSX.Element => {
   const [suppressRate, setSuppressRate] = useState<string | null>(null);
   const [width, setWidth] = useState<string | null>(null);
   const [height, setHeight] = useState<string | null>(null);
+  const [apiGatewayUrl, setApiGatewayUrl] = useState<string>("");
 
   const byteToKB = (byte: number | string): string => {
     if (typeof byte === "string") {
@@ -71,6 +71,11 @@ const UploadImage = (): JSX.Element => {
     setHeight(event.currentTarget.value);
   };
 
+  const onApiGatewayUrlChange = (event: React.FormEvent<HTMLInputElement>) => {
+    event.preventDefault();
+    setApiGatewayUrl(event.currentTarget.value);
+  };
+
   const setUploadedImageSize = async (url: string): Promise<void> => {
     try {
       const response = await axios.head(url);
@@ -97,7 +102,7 @@ const UploadImage = (): JSX.Element => {
     formData.append("file", image as Blob);
     try {
       const response = await axios.post(
-        `${IMAGE_UPLOAD_URL}${width ? "?width=" + width : ""}${
+        `${apiGatewayUrl}${width ? "?width=" + width : ""}${
           height ? (width ? "&height=" + height : "?height=" + height) : ""
         }`,
         formData,
@@ -123,6 +128,12 @@ const UploadImage = (): JSX.Element => {
         ref={imageRef}
         src={image ? getImageSrc() : imgQuestion}
       />
+      <Space />
+      <Space />
+      <span>
+        API Gateway endpoint:&nbsp;&nbsp;
+        <input onChange={onApiGatewayUrlChange} />
+      </span>
       <Space />
       <ButtonContainer>
         <label>
